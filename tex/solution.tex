@@ -1,0 +1,45 @@
+\section{Solution Methods}
+
+\subsection{Data Set}
+
+We plan to use SemCor Corpus~\cite{semcor} as our data set. SemCor Corpus is a
+corpus where each word is tagged with a sense provided by WordNet~\cite{wordnet}.
+
+\subsection{Feature extraction}
+
+Let W be the set of English words that we want to do sense disambiguation. 
+
+For each $w \in W$, we need to extract a training set $X_w$ from the SemCor
+Corpus as follow: 
+\begin{enumerate}
+  \item Draw a set of sentences $S_w$ from SemCor Corpus, where each sentense
+$s \in S_w$ contains the word w. 
+  \item Convert each sentence $s \in S_w$ to a feature vector x, and the sense
+    label y. The set of all (x,y) pairs is our training set $X_w$.
+\end{enumerate}
+
+\textbf{Feature extraction}. So far we have found two ways to convert a
+sensetence to a feature vector that represents the sentence context for word
+sense disambiguation task:
+\begin{enumerate}
+  \item Colocation~\cite{colocation}. The preceding and succeeding words.
+  \item Bag-of-words~\cite{bagofwords}. Ignore positional information. Assume
+    that there is a fixed set of vocabulary we care about, count the appearance
+    of those words as a bit vector.
+\end{enumerate}
+
+\subsection{Algorithms}
+
+For this multi-class classification problem, we consider the following models,
+using one-vs-all method to extend them to solve multi-class problem:
+\begin{enumerate}
+  \item Naive Bayes.
+  \item Logistic Regression.
+  \item Support Vector Machine.
+  \item Neural Networks.
+\end{enumerate}
+
+\subsection{Evaluation Method}
+
+For each target word, we partition the data into training set and test set. And
+evaluate classifiers on the training set using 0-1 loss.
