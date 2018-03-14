@@ -4,18 +4,16 @@
   \centering
 \includegraphics[width=0.5\textwidth]{graphs/overview.png}
 \caption{system overview}
+  \label{fig:overview}
 \end{figure}
 
-We rely on Google to retrive information. The typical way we interact with
-search engines is typing in search key words using natural languages. However
-English words have different meanings in different contexts. A major challenge
-to precisely retrive the desired information is for search engine to understand
-the meaning of key words in a given context.
+Words in natural language could have multiple meanings. Though humans are good
+at inducing the actual meaning of words given a certain context, such
+multi-meaning words are often seem ambiguous to machines. Such ambiguiaty in
+natural languages have been the major challenges for machine to understand user
+intention, e.g. google search key words.
 
 To solve this problem, we propose to build a word sense disambiguate system that
 takes an English word and a sentence where it appears as input, and predicts the
-sense of such word with regard to the given context. 
-
-A pratical usage of our system, would be for the search engine to substitute the
-key words with paraphases of the same predicted sense, thus it can retrive a
-more complete set of results for a given user query.
+sense of such word within the given context. The architecture of our system is
+shown in figure~\ref{fig:overview}.

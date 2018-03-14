@@ -2,8 +2,8 @@
 
 This is a supervised multi-class classification problem. For each targetted
 ambiguous word $w$, we train an classifier $h_w: X \rightarrow L$, where X is
-the feature space (context representation), and the label space L is the list of word
-definitions in WordNet~\cite{wordnet}.
+the feature space (context representation), and the label space L is the list of
+word definitions for word w given by WordNet~\cite{wordnet}.
 
 \textbf{Data Preprocessing}.
 
@@ -16,7 +16,7 @@ corpus where each word is tagged with a sense provided by WordNet~\cite{wordnet}
   \item Part-of-Speech tagging: e.g. ``the/DT bar/NN was/VBD crowded/JJ'', where
     DT stands for Determiners, NN stands for Noun, etc.
   \item Lemmatization: e.g. $plays \rightarrow play$, $was \rightarrow be$.
-  \item Feature extractino: select some features to represent the context.
+  \item Feature extraction: select some features to represent the context.
 \end{enumerate}
 
 So far we have found two ways to convert a
