@@ -13,11 +13,15 @@
 \usepackage{color}
 \usepackage{url}
 \usepackage{float}
+\usepackage{enumitem}
+%\usepackage[shortlabels]{enumitem}
 %\usepackage{algorithm,algorithmic}
 
 %---------- Spacing ----------
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{8pt}
+\setlength{\parskip}{4pt}
+
+\setlist[enumerate]{itemsep=0mm}
 
 %---------Definitions----------
 \newcommand{\half}{{\textstyle{\frac{1}{2}}}}
@@ -107,10 +111,10 @@
 \textbf{Team Members:}
 
 %Fill in your team details; remove any lines that are not needed
-Firstname1 Lastname1 (PennKey: \texttt{pennkey1}; Email: \texttt{email1@xxx.upenn.edu}) \\
-Firstname2 Lastname2 (PennKey: \texttt{pennkey2}; Email: \texttt{email2@xxx.upenn.edu}) \\
-Firstname3 Lastname3 (PennKey: \texttt{pennkey3}; Email: \texttt{email3@xxx.upenn.edu}) \\
-Firstname4 Lastname4 (PennKey: \texttt{pennkey4}; Email: \texttt{email4@xxx.upenn.edu})
+Haoxian Chen (PennKey: \texttt{hxchen}; Email: \texttt{hxchen@seas.upenn.edu}) \\
+Leshang Chen (PennKey: \texttt{leshangc}; Email: \texttt{leshangc@seas.upenn.edu}) \\
+Hui Lyu (PennKey: \texttt{huilyu}; Email: \texttt{huilyu@seas.upenn.edu}) \\
+Yanci Zhang (PennKey: \texttt{yanci}; Email: \texttt{yanci@seas.upenn.edu})
 
 %---
 
@@ -166,17 +170,17 @@ Firstname4 Lastname4 & list of contributions \\
 
 %*********** Recommended section structure for project proposal below (comment out in project report) ************
 
-\include{introduction}
+\input{introduction}
 
-\include{relatedwork}
+\input{relatedwork}
 
-\include{formulation}
+\input{formulation}
 
-\include{solution}
+\input{solution}
 
-\include{plan}
+\input{plan}
 
-\section*{Acknowledgments}
+% \section*{Acknowledgments}
 
 %*********** Recommended section structure for project report below (comment out in project proposal) ************
 
