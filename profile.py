@@ -17,8 +17,13 @@ def profile_file(word_map, filename):
     if len(word_map.keys()) == 0:
         word_map = {}
 
+    num_new_words = 0
+    num_words = 0
+
     for sent in sentences:
         for wordform in sent.getchildren():
+            num_words += 1
+
             lemma = wordform.get('lemma')
             sense_id = wordform.get('wnsn')
 
@@ -29,18 +34,22 @@ def profile_file(word_map, filename):
                 else:
                     stat[sense_id] = 1
             else:
+                num_new_words += 1
+
                 stat = {}
                 stat[sense_id] = 1
                 word_map[lemma] = stat
 
     # stats
-    print ('number of sentences: %d' % len(sentences))
-    print ('number of words: %d' % len(word_map.keys()))
+    print ('sentences: %d' % len(sentences))
+    print ('words: %d' % num_words)
+    print ('%.0f words / sentence' % (num_words / len(sentences)))
+    print ('new words: %d' % num_new_words)
 
     return word_map
 
 def find_ambiguous_words(word_map):
-    sense_number_map = np.zeros(20)
+    sense_number_map = np.zeros(100)
     ambiguous_words = {}
     for word, sense_map in word_map.items():
         num_sense = len(sense_map.keys())
@@ -51,14 +60,29 @@ def find_ambiguous_words(word_map):
 
     return ambiguous_words
 
+def load_tag_fies(index_file):
+    tag_files = []
+    with open(index_file) as f:
+        for line in f:
+            tag_files.append(line.replace('\n',''))
+
+    return tag_files
+
 if __name__ == '__main__':
+    tag_files = load_tag_fies('./dataset/semcor_tagfiles_full.txt')
+    # tag_files = load_tag_fies('./dataset/brown1_tagfiles.txt')
     filename = 'brown2/tagfiles/br-n12.xml'
     word_map = {}
-    word_map = profile_file(word_map,filename)
+    for t in tag_files:
+        print ('parsing %s ...' % t)
+        word_map = profile_file(word_map,t)
+        print ('total words: %d' % len(word_map.keys()))
 
     ambiguous_words = find_ambiguous_words(word_map)
     for word, sense_map in ambiguous_words.items():
         print (word)
         for sense_id, count in sense_map.items():
-            print ('sense %s appeaars %d times' %(sense_id, count))
-        print ('\n')
+            print ('sense %s appears %d times' %(sense_id, count))
+        print ('')
+
+    print ('number of ambiguous words: %d' % len(ambiguous_words.keys()))
