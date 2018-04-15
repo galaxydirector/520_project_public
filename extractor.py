@@ -1,6 +1,7 @@
 # from nltk.stem.wordnet import WordNetLemmatizer
 import collections
 from nltk.corpus import semcor
+import numpy as np
 
 def load_tag_fies(index_file):
     tag_files = []
@@ -10,6 +11,9 @@ def load_tag_fies(index_file):
     return tag_files
 
 class Context:
+    ''' x_i: vector
+        y_i: sense_id
+    '''
     def __init__(self, vector, sense_id):
         self.vector = vector
         self.sense_id = sense_id
@@ -30,7 +34,8 @@ class ContextContainer:
 class ContextExtractor:
     class Word:
         def __init__(self,word,pos_tag):
-            self._vector = [0]
+            WORD_VEC_LEN = 10
+            self._vector = np.zeros(WORD_VEC_LEN)
 
         @property
         def vector(self):
@@ -69,7 +74,8 @@ class ContextExtractor:
 
     @staticmethod
     def __combine_bufs(last_words,next_words):
-        return list(last_words) + list(next_words)
+        return reduce(lambda x,y: np.append(x,y), np.append(last_words,
+            next_words))
 
     def __sent2vec(self, word, sent):
         WINDOW_SIZE = 2
