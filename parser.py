@@ -6,13 +6,7 @@ nltk.data.path.append(os.getcwd() + '/dataset/')
 from nltk.corpus import semcor
 
 import pickle
-
-def load_tag_fies(index_file):
-    tag_files = []
-    with open(index_file) as f:
-        for line in f:
-            tag_files.append(line.replace('\n',''))
-    return tag_files
+from extractor import *
 
 def load(filename):
     if os.path.isfile(filename):
@@ -94,4 +88,8 @@ if __name__ == '__main__':
 
     MIN_SENSE_APPR = 1000
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR)
-    print '%d ambiguous words' % len(ambiguous_words.keys())
+    # print '%d ambiguous words' % len(ambiguous_words.keys())
+
+    ce = ContextExtractor(word_map)
+    ce.go(tag_file)
+    ce.dump()
