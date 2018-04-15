@@ -55,6 +55,7 @@ class ContextExtractor:
                 sense_id = wordform.get('wnsn')
                 text = wordform.text
 
+                # check that both word and sense id are in word_map
                 if lemma in self.word_map.keys():
                     if sense_id in self.word_map[lemma].keys():
                         self.parse(text,lemma, sent, sense_id)
@@ -85,6 +86,7 @@ class ContextExtractor:
                 buf.append(self.Word(word,pos_tag).vector)
                 if is_seen and len(buf) == WINDOW_SIZE:
                     break
+        assert is_seen == True
         return self.__combine_bufs(last_words,next_words)
 
     def dump(self):
