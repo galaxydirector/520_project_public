@@ -86,8 +86,8 @@ def load_word2vec_model():
 if __name__ == '__main__':
     word2vec_model = load_word2vec_model()
 
-    # tag_file = './dataset/semcor_tagfiles_full.txt'
-    tag_file = './dataset/brown1_tagfiles.txt'
+    tag_file = './dataset/semcor_tagfiles_full.txt'
+    # tag_file = './dataset/brown1_tagfiles.txt'
     word_map = CorpusParser(tag_file,force_update=False).word_map
 
     MIN_SENSE_APPR = 1000

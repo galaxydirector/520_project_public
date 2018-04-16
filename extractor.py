@@ -8,12 +8,14 @@ from misc import *
 class Context:
     ''' x_i: vector
         y_i: sense_id
+        word_list: list of word as string, for debugging
     '''
-    def __init__(self, vector, sense_id):
+    def __init__(self, vector, sense_id, word_list):
         self.vector = vector
         self.sense_id = int(sense_id)
+        self.word_list = word_list
     def dump(self):
-        print 'vector: %s, sense id: %d' % (self.vector, self.sense_id)
+        print 'words: %s\n vector: %s, sense id: %d' % (str(self.word_list) ,self.vector, self.sense_id)
     def vec(self):
         return np.append(self.vector, [self.sense_id])
 
@@ -21,9 +23,9 @@ class ContextContainer:
     def __init__(self, text):
         self.text = text
         self.context_list = np.array([])
-    def update(self, vector, sense_id):
+    def update(self, vector, sense_id, word_list):
         self.context_list = np.append(self.context_list,Context(vector,
-            sense_id))
+            sense_id, word_list))
 
     def dump(self,n=1):
         # sample some instance and print to screen
@@ -71,8 +73,8 @@ class ContextExtractor:
         # from word to a matrix representation
         if lemma not in self.contexts.keys():
             self.contexts[lemma] = ContextContainer(word)
-        vector = self.__sent2vec(word, sent)
-        self.contexts[lemma].update(vector, sense_id)
+        vector,word_list = self.__sent2vec(word, sent)
+        self.contexts[lemma].update(vector, sense_id, word_list)
 
     @staticmethod
     def __combine_bufs(last_words,next_words):
@@ -81,17 +83,14 @@ class ContextExtractor:
 
     def __word2vec(self, word, pos_tag):
         # TODO: incooperate POS tag informatoin
-        if word in self.word2vec_model.wv.vocab:
-            vec = self.word2vec_model[word]
-            return vec
-        else:
-            return np.zeros(100)
+        return self.word2vec_model[word]
 
     def __sent2vec(self, word, sent):
         WINDOW_SIZE = 2
         last_words = collections.deque(maxlen=WINDOW_SIZE)
         next_words = collections.deque(maxlen=WINDOW_SIZE)
         padding = np.zeros(self.WORD_VECTOR_LEN)
+        word_list = []
         for i in range(WINDOW_SIZE):
             last_words.append(padding)
             next_words.append(padding)
@@ -100,18 +99,20 @@ class ContextExtractor:
         for wf in sent.getchildren():
             pos_tag = wf.get('POS')
             lemma = wf.get('lemma')
+            word_list.append(wf.text)
+
             if wf.text == word:
                 is_seen = True
-            else:
-                if is_seen:
-                    next_words.append(self.__word2vec(lemma,pos_tag))
+
+            if word in self.word2vec_model.wv.vocab:
+                _vec = self.__word2vec(word,pos_tag)
+                if is_seen and look_ahead < WINDOW_SIZE:
+                    next_words.append(_vec)
                     look_ahead += 1
-                    if  look_ahead == WINDOW_SIZE:
-                        break
                 else:
-                    last_words.append(self.__word2vec(lemma,pos_tag))
+                    last_words.append(_vec)
         assert is_seen == True
-        return self.__combine_bufs(last_words,next_words)
+        return self.__combine_bufs(last_words,next_words), word_list
 
     def dump(self):
         for i,w in enumerate(self.contexts.keys()):
