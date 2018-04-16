@@ -5,21 +5,10 @@ import os
 nltk.data.path.append(os.getcwd() + '/dataset/')
 from nltk.corpus import semcor
 
-import pickle
+from gensim.models import Word2Vec
+
 from extractor import *
-
-def load(filename):
-    if os.path.isfile(filename):
-        print 'Load from %s' % filename
-        with open(filename) as f:
-            [data,] = pickle.load(f)
-        return data
-    else: return None
-
-def save(data, filename):
-    print 'Saving to %s' % filename
-    with open(filename, 'w') as f:
-        pickle.dump([data,], f)
+from misc import *
 
 class WordStat:
     def __init__(self, init_map={}):
@@ -82,14 +71,29 @@ def filter_word_map(word_map, min_sense_appr):
             print sid, count
     return filtered_map
 
+def load_word2vec_model():
+    model_file = 'semcor.embedding'
+
+    if os.path.isfile(model_file):
+        print 'Load from %s' % model_file
+        model = Word2Vec.load(model_file)
+    else:
+        model = Word2Vec(semcor.sents(), size=100, window=5, min_count=5, workers=2)
+        model.save(model_file)
+        print 'Saved model to %s' % model_file
+    return model
+
 if __name__ == '__main__':
-    tag_file = './dataset/semcor_tagfiles_full.txt'
+    word2vec_model = load_word2vec_model()
+
+    # tag_file = './dataset/semcor_tagfiles_full.txt'
+    tag_file = './dataset/brown1_tagfiles.txt'
     word_map = CorpusParser(tag_file,force_update=False).word_map
 
     MIN_SENSE_APPR = 1000
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR)
     # print '%d ambiguous words' % len(ambiguous_words.keys())
 
-    ce = ContextExtractor(word_map)
+    ce = ContextExtractor(word_map, word2vec_model)
     ce.go(tag_file)
-    ce.dump()
+    ce.dump2file()
