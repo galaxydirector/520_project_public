@@ -107,7 +107,8 @@ def filter_word_map(word_map, min_sense_appr):
 
 def load_word2vec_model(index_file, force_update=False):
     model_dir = 'model'
-    model_file = './%s/%s' % (model_dir,'semcor.embedding')
+    model_file = './%s/%s_w2v.embedding' % (model_dir, 
+                os.path.basename(index_file).split('.')[0])
 
     if os.path.isfile(model_file) and not force_update:
         print 'Load from %s' % model_file
@@ -123,10 +124,10 @@ def load_word2vec_model(index_file, force_update=False):
     return model
 
 if __name__ == '__main__':
-    # index_file = './dataset/semcor_tagfiles_full.txt'
-    index_file = './dataset/brown1_tagfiles.txt'
+    index_file = './dataset/semcor_tagfiles_full.txt'
+    # index_file = './dataset/brown1_tagfiles.txt'
     
-    word2vec_model = load_word2vec_model(index_file, force_update=True)
+    word2vec_model = load_word2vec_model(index_file, force_update=False)
 
     word_map = CorpusParser(index_file,force_update=False).word_map
 
@@ -134,6 +135,7 @@ if __name__ == '__main__':
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR)
     # print '%d ambiguous words' % len(ambiguous_words.keys())
 
-    ce = ContextExtractor(word_map, word2vec_model)
+    ce = ContextExtractor(ambiguous_words, word2vec_model)
     ce.go(index_file)
     ce.dump2file()
+    # ce.dump()

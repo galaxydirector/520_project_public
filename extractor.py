@@ -39,6 +39,9 @@ class ContextContainer:
     def dump2file(self, filename):
         vector_list = map(lambda x: x.vec(), self.context_list)
         matrix = reduce(lambda x,y: np.vstack((x,y)), vector_list)
+        _dir = os.path.dirname(filename)
+        if not os.path.exists(_dir):
+            os.makedirs(_dir)
         np.savetxt(filename,matrix,delimiter=',')
 
 class ContextExtractor:
@@ -104,8 +107,8 @@ class ContextExtractor:
             if wf.text == word:
                 is_seen = True
 
-            if word in self.word2vec_model.wv.vocab:
-                _vec = self.__word2vec(word,pos_tag)
+            if wf.text in self.word2vec_model.wv.vocab:
+                _vec = self.__word2vec(wf.text,pos_tag)
                 if is_seen and look_ahead < WINDOW_SIZE:
                     next_words.append(_vec)
                     look_ahead += 1
