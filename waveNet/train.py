@@ -37,14 +37,18 @@ Y_test = np.loadtxt(path_Ytest+word, delimiter = ",")
 
 # print("shape",X_train.shape)
 X_train= X_train.reshape([X_train.shape[0],100,4])
+# print(X_train.shape)
+X_train= np.transpose(X_train,[0,2,1])
+
+# print (X_train.shape)
 
 output_classes = len(set(Y_train))
 Y_train = to_categorical(Y_train, num_classes=output_classes)
 
+# print(Y_train.shape)
 
-
-# if __name__ == '__main__':
-#     print (X_train.shape)
+# # if __name__ == '__main__':
+# #     print (X_train.shape)
 
 
 # training params
@@ -83,12 +87,12 @@ net = wavenet_model(
     params['global_condition_channels'],
     params['global_condition_cardinality'])
 
-x=tf.placeholder(tf.float32,shape=(None,100,4))
+x=tf.placeholder(tf.float32,shape=(None,4,100))
 y=tf.placeholder(tf.float32,shape=(None,output_classes))
 loss = net.loss(input_batch=x,
                 target_output = y,
                 global_condition_batch=None,
-                l2_regularization_strength=0.001)
+                l2_regularization_strength=None)
 train_step=tf.train.AdamOptimizer(0.001).minimize(loss)
 
 tf.summary.scalar("loss", loss)

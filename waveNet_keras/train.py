@@ -5,6 +5,7 @@ from keras.utils import to_categorical
 import os
 from model import Wavenet
 from keras import optimizers, metrics
+from keras import backend as K
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, CSVLogger, TensorBoard
 
 X_train = {}
@@ -27,10 +28,10 @@ make_ = 'make.txt'
 
 # for word in all_words:
 #     X_train[word] = np.loadtxt(path_Xtrain+word, delimiter = ",")
-    # Y_train[word] = np.loadtxt(path_Ytrain+word, delimiter = ",")
-    # X_test[word] = np.loadtxt(path_Xtest+word, delimiter = ",")
-    # Y_test[word] = np.loadtxt(path_Ytest+word, delimiter = ",")
-word = 'even.txt'
+	# Y_train[word] = np.loadtxt(path_Ytrain+word, delimiter = ",")
+	# X_test[word] = np.loadtxt(path_Xtest+word, delimiter = ",")
+	# Y_test[word] = np.loadtxt(path_Ytest+word, delimiter = ",")
+word = 'make.txt'
 X_train= np.loadtxt(path_Xtrain+word, delimiter = ",")
 Y_train = np.loadtxt(path_Ytrain+word, delimiter = ",")
 X_test = np.loadtxt(path_Xtest+word, delimiter = ",")
@@ -99,7 +100,7 @@ def prepare_callbacks(model_file_path, test_folder, test_name, use_adaptive_opti
 
 	if use_adaptive_optimzer:
 		callback_list = [logger, save_chkpt]
-	else:	
+	else:   
 		callback_list = [reduce_lr, logger, save_chkpt]
 	
 	return callback_list
@@ -109,9 +110,42 @@ def prepare_callbacks(model_file_path, test_folder, test_name, use_adaptive_opti
 def run_training(x_data, y_data, x_test, y_test, model_params, model_file_path, test_folder, test_name): 
 	# set up the model
 	
+	def f1(y_true, y_pred):
+		def recall(y_true, y_pred):
+			"""Recall metric.
+
+			Only computes a batch-wise average of recall.
+
+			Computes the recall, a metric for multi-label classification of
+			how many relevant items are selected.
+			"""
+			true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+			possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+			recall = true_positives / (possible_positives + K.epsilon())
+			return recall
+
+		def precision(y_true, y_pred):
+			"""Precision metric.
+
+			Only computes a batch-wise average of precision.
+
+			Computes the precision, a metric for multi-label classification of
+			how many selected items are relevant.
+			"""
+			true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+			predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+			precision = true_positives / (predicted_positives + K.epsilon())
+			return precision
+
+		precision = precision(y_true, y_pred)
+		recall = recall(y_true, y_pred)
+		return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
 	wavenet = Wavenet(**model_params)
 	model = wavenet.model
-	model.compile(loss='categorical_crossentropy', optimizer=opt_methods['adam'], metrics=[metrics.categorical_accuracy])
+	model.compile(loss='categorical_crossentropy', 
+		optimizer=opt_methods['adam'], 
+		metrics=[metrics.categorical_accuracy, f1])
 	callback_list = prepare_callbacks(model_file_path, test_folder, test_name)
 
 	print ("Start Training........")
@@ -119,7 +153,7 @@ def run_training(x_data, y_data, x_test, y_test, model_params, model_file_path, 
 	model.fit(x=x_data,
 		y=y_data,
 		batch_size=50,
-		epochs = 5, 
+		epochs = 50, 
 		verbose = 1,
 		validation_data=(x_test,y_test))
 	duration = time.time() - start_time
