@@ -123,16 +123,16 @@ def load_model(index_file, model_type, force_update=False):
     return model
 
 if __name__ == '__main__':
-    # index_file = './dataset/semcor_tagfiles_full.txt'
-    index_file = './dataset/brown1_tagfiles.txt'
+    index_file = './dataset/semcor_tagfiles_full.txt'
+    # index_file = './dataset/brown1_tagfiles.txt'
     
     word2vec_model = load_model(index_file, 'word', force_update=False)
     pos2vec_model = load_model(index_file, 'pos', force_update=False)
 
     word_map = CorpusParser(index_file,force_update=False).word_map
 
-    MIN_SENSE_APPR = 10
-    MIN_TOTAL_SIZE = 20
+    MIN_SENSE_APPR = 20
+    MIN_TOTAL_SIZE = 200
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR, MIN_TOTAL_SIZE)
     print '%d ambiguous words' % len(ambiguous_words.keys())
     for i,w in enumerate(ambiguous_words.keys()):
