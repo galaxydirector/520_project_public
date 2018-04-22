@@ -79,11 +79,16 @@ class CorpusParser:
                     self.word_map[lemma] = defaultdict(int)
                 self.word_map[lemma][sense_id] += 1
 
-def filter_word_map(word_map, min_sense_appr):
+def filter_word_map(word_map, min_sense_appr, min_size):
     filtered_map = {}
     for word, senses in word_map.items():
-        if min(senses.values()) > min_sense_appr and len(senses.keys()) > 1:
-            filtered_map[word] = senses
+        if len(senses.keys()) <= 1:
+            continue
+        if sum(senses.values()) < min_size:
+            continue
+        if min(senses.values()) < min_sense_appr:
+            continue
+        filtered_map[word] = senses
     return filtered_map
 
 def load_word2vec_model(index_file, force_update=False):
@@ -113,7 +118,8 @@ if __name__ == '__main__':
     word_map = CorpusParser(index_file,force_update=False).word_map
 
     MIN_SENSE_APPR = 20
-    ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR)
+    MIN_TOTAL_SIZE = 200
+    ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR, MIN_TOTAL_SIZE)
     print '%d ambiguous words' % len(ambiguous_words.keys())
     for i,w in enumerate(ambiguous_words.keys()):
         # if i > 3: break
