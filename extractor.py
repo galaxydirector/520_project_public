@@ -47,8 +47,9 @@ class ContextContainer:
 class ContextExtractor:
     def __init__(self, word_map, word2vec_model):
         self.word_map = word_map
-        self.contexts = {}
         self.word2vec_model = word2vec_model
+
+        self.context_map = {}
         self.WORD_VECTOR_LEN = 100
 
     def go(self, index_file):
@@ -67,17 +68,15 @@ class ContextExtractor:
                 sense_id = wordform.get('wnsn')
                 text = wordform.text
 
-                # check that both word and sense id are in word_map
                 if lemma in self.word_map.keys():
-                    if sense_id in self.word_map[lemma].keys():
-                        self.__parse(text,lemma, sent, sense_id)
+                    self.__parse(text, lemma, sent, sense_id)
 
     def __parse(self, word, lemma, sent, sense_id):
         # from word to a matrix representation
-        if lemma not in self.contexts.keys():
-            self.contexts[lemma] = ContextContainer(word)
+        if lemma not in self.context_map.keys():
+            self.context_map[lemma] = ContextContainer(word)
         vector,word_list = self.__sent2vec(word, sent)
-        self.contexts[lemma].update(vector, sense_id, word_list)
+        self.context_map[lemma].update(vector, sense_id, word_list)
 
     @staticmethod
     def __combine_bufs(last_words,next_words):
@@ -89,16 +88,20 @@ class ContextExtractor:
         return self.word2vec_model[word]
 
     def __sent2vec(self, word, sent):
-        WINDOW_SIZE = 2
+        WINDOW_SIZE = 3
         last_words = collections.deque(maxlen=WINDOW_SIZE)
         next_words = collections.deque(maxlen=WINDOW_SIZE)
-        padding = np.zeros(self.WORD_VECTOR_LEN)
         word_list = []
+
+        # set default to 0 vectors
+        padding = np.zeros(self.WORD_VECTOR_LEN)
         for i in range(WINDOW_SIZE):
             last_words.append(padding)
             next_words.append(padding)
+
         is_seen = False
         look_ahead = 0
+        # pass the whole sentence again
         for wf in sent.getchildren():
             pos_tag = wf.get('POS')
             lemma = wf.get('lemma')
@@ -108,6 +111,8 @@ class ContextExtractor:
                 is_seen = True
 
             if wf.text in self.word2vec_model.wv.vocab:
+                # the key used in word2vec model is the original word, not the
+                # lemma
                 _vec = self.__word2vec(wf.text,pos_tag)
                 if is_seen and look_ahead < WINDOW_SIZE:
                     next_words.append(_vec)
@@ -118,14 +123,13 @@ class ContextExtractor:
         return self.__combine_bufs(last_words,next_words), word_list
 
     def dump(self):
-        for i,w in enumerate(self.contexts.keys()):
+        for i,w in enumerate(self.context_map.keys()):
             if i>3: break
             print w
-            self.contexts[w].dump()
+            self.context_map[w].dump()
 
     def dump2file(self):
-        for w,c in self.contexts.items():
-            if c.len() > 100:
-                filename = './dataset/words/%s.txt' % w
-                print 'dumpping %s to %s' % (w,filename)
-                c.dump2file(filename)
+        for w,c in self.context_map.items():
+            filename = './dataset/words/%s.txt' % w
+            print 'dumpping %s to %s' % (w,filename)
+            c.dump2file(filename)
