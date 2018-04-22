@@ -45,9 +45,10 @@ class ContextContainer:
         np.savetxt(filename,matrix,delimiter=',')
 
 class ContextExtractor:
-    def __init__(self, word_map, word2vec_model):
+    def __init__(self, word_map, word2vec_model, pos2vec_model):
         self.word_map = word_map
         self.word2vec_model = word2vec_model
+        self.pos2vec_model = pos2vec_model
 
         self.context_map = {}
         self.WORD_VECTOR_LEN = 100
@@ -85,16 +86,17 @@ class ContextExtractor:
 
     def __word2vec(self, word, pos_tag):
         # TODO: incooperate POS tag informatoin
-        return self.word2vec_model[word]
+        return np.append(self.word2vec_model[word],self.pos2vec_model[pos_tag])
 
     def __sent2vec(self, word, sent):
-        WINDOW_SIZE = 3
+        WINDOW_SIZE = 2
         last_words = collections.deque(maxlen=WINDOW_SIZE)
         next_words = collections.deque(maxlen=WINDOW_SIZE)
         word_list = []
 
-        # set default to 0 vectors
-        padding = np.zeros(self.WORD_VECTOR_LEN)
+        # set default to 0 vectors: the length of each word include word vector
+        # and pos tag
+        padding = np.zeros(self.WORD_VECTOR_LEN * 2)
         for i in range(WINDOW_SIZE):
             last_words.append(padding)
             next_words.append(padding)
@@ -103,14 +105,14 @@ class ContextExtractor:
         look_ahead = 0
         # pass the whole sentence again
         for wf in sent.getchildren():
-            pos_tag = wf.get('POS')
+            pos_tag = wf.get('pos')
             lemma = wf.get('lemma')
             word_list.append(wf.text)
 
             if wf.text == word:
                 is_seen = True
 
-            if wf.text in self.word2vec_model.wv.vocab:
+            if wf.text in self.word2vec_model.wv.vocab and pos_tag in self.pos2vec_model.wv.vocab:
                 # the key used in word2vec model is the original word, not the
                 # lemma
                 _vec = self.__word2vec(wf.text,pos_tag)

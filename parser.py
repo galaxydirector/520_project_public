@@ -20,11 +20,14 @@ def scan_corpus(index_file, f_parse):
         f_parse(sentences)
 
 class ModelTrainer:
-    def __init__(self):
+    def __init__(self, model_type):
         self._model = Word2Vec(size=100, window=5, min_count=5, workers=2)
+        self.model_type = model_type
         self._trained = False
     def parse(self, sentences):
         sent_str = map(lambda x:self.__semcor_sent2str(x), sentences)
+        assert len(sent_str) > 0
+
         if not self._trained:
             self.model.build_vocab(sent_str)
             self._trained = True
@@ -32,9 +35,15 @@ class ModelTrainer:
             self.model.build_vocab(sent_str,update=True)
         self.model.train(sent_str,total_examples=self.model.corpus_count,epochs=self.model.iter)
 
-    @staticmethod
-    def __semcor_sent2str(sent):
-        return map(lambda x: x.text, sent);
+    def __semcor_sent2str(self, sent):
+        '''  sent is the wordform structure in semcor corpus
+        ''' 
+        # key is original word, not lemma
+        if self.model_type == 'word':
+            return map(lambda x: x.text, sent)
+        if self.model_type == 'pos':
+            pos_list = map(lambda x: x.get('pos'), sent.getchildren())
+            return filter(lambda x: x !=None, pos_list)
 
     @property
     def model(self):
@@ -91,16 +100,20 @@ def filter_word_map(word_map, min_sense_appr, min_size):
         filtered_map[word] = senses
     return filtered_map
 
-def load_word2vec_model(index_file, force_update=False):
+def load_model(index_file, model_type, force_update=False):
     model_dir = 'model'
-    model_file = './%s/%s_w2v.embedding' % (model_dir, 
-                os.path.basename(index_file).split('.')[0])
+    if model_type == 'word':
+        model_file = './%s/%s_w2v.embedding' % (model_dir, 
+                    os.path.basename(index_file).split('.')[0])
+    else:
+        model_file = './%s/%s_%s.embedding' % (model_dir, 
+                    os.path.basename(index_file).split('.')[0], model_type)
 
     if os.path.isfile(model_file) and not force_update:
         print 'Load from %s' % model_file
         model = Word2Vec.load(model_file)
     else:
-        trainer = ModelTrainer()
+        trainer = ModelTrainer(model_type)
         scan_corpus(index_file, trainer.parse)
         model = trainer.model
         if not os.path.exists(model_dir):
@@ -110,22 +123,23 @@ def load_word2vec_model(index_file, force_update=False):
     return model
 
 if __name__ == '__main__':
-    index_file = './dataset/semcor_tagfiles_full.txt'
-    # index_file = './dataset/brown1_tagfiles.txt'
+    # index_file = './dataset/semcor_tagfiles_full.txt'
+    index_file = './dataset/brown1_tagfiles.txt'
     
-    word2vec_model = load_word2vec_model(index_file, force_update=False)
+    word2vec_model = load_model(index_file, 'word', force_update=False)
+    pos2vec_model = load_model(index_file, 'pos', force_update=False)
 
     word_map = CorpusParser(index_file,force_update=False).word_map
 
-    MIN_SENSE_APPR = 20
-    MIN_TOTAL_SIZE = 200
+    MIN_SENSE_APPR = 10
+    MIN_TOTAL_SIZE = 20
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR, MIN_TOTAL_SIZE)
     print '%d ambiguous words' % len(ambiguous_words.keys())
     for i,w in enumerate(ambiguous_words.keys()):
         # if i > 3: break
         print w,ambiguous_words[w]
 
-    ce = ContextExtractor(ambiguous_words, word2vec_model)
-    # ce.go(index_file)
+    ce = ContextExtractor(ambiguous_words, word2vec_model, pos2vec_model)
+    ce.go(index_file)
     ce.dump2file()
     # ce.dump()
