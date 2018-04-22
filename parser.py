@@ -10,6 +10,8 @@ from gensim.models import Word2Vec
 from extractor import *
 from misc import *
 
+from collections import defaultdict
+
 def scan_corpus(index_file, f_parse):
     tag_files = load_tag_fies(index_file)
     for filename in tag_files:
@@ -37,24 +39,6 @@ class ModelTrainer:
     @property
     def model(self):
         return self._model
-
-class WordStat:
-    def __init__(self, init_map={}):
-        self.senses = init_map
-    def update(self, x):
-        if x == None: return
-        if not x.isdigit(): return
-
-        if x not in self.senses.keys():
-            self.senses[x] = 0
-        self.senses[x] += 1
-    def dump(self):
-        for k,v in self.senses.items():
-            print k,v
-    def keys(self):
-        return self.senses.keys()
-    def items(self):
-        return self.senses.items()
 
 class CorpusParser:
     def __init__(self, index_file, force_update=False):
@@ -88,21 +72,18 @@ class CorpusParser:
                 lemma = wordform.get('lemma')
                 sense_id = wordform.get('wnsn')
 
+                if sense_id == None or not sense_id.isdigit():
+                    continue
+
                 if lemma not in self.word_map.keys():
-                    self.word_map[lemma] = WordStat()
-                self.word_map[lemma].update(sense_id)
+                    self.word_map[lemma] = defaultdict(int)
+                self.word_map[lemma][sense_id] += 1
 
 def filter_word_map(word_map, min_sense_appr):
     filtered_map = {}
     for word, senses in word_map.items():
-        dense_senses = {}
-        for sid, count in senses.items():
-            if count > min_sense_appr:
-                dense_senses[sid] = count
-        if len(dense_senses.keys()) > 1: 
-            filtered_map[word] = WordStat(dense_senses)
-        else:
-            print sid, count
+        if min(senses.values()) > min_sense_appr and len(senses.keys()) > 1:
+            filtered_map[word] = senses
     return filtered_map
 
 def load_word2vec_model(index_file, force_update=False):
@@ -131,11 +112,14 @@ if __name__ == '__main__':
 
     word_map = CorpusParser(index_file,force_update=False).word_map
 
-    MIN_SENSE_APPR = 1000
+    MIN_SENSE_APPR = 20
     ambiguous_words = filter_word_map(word_map, MIN_SENSE_APPR)
-    # print '%d ambiguous words' % len(ambiguous_words.keys())
+    print '%d ambiguous words' % len(ambiguous_words.keys())
+    for i,w in enumerate(ambiguous_words.keys()):
+        # if i > 3: break
+        print w,ambiguous_words[w]
 
     ce = ContextExtractor(ambiguous_words, word2vec_model)
-    ce.go(index_file)
+    # ce.go(index_file)
     ce.dump2file()
     # ce.dump()
