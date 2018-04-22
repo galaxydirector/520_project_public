@@ -24,8 +24,13 @@ class ContextContainer:
         self.text = text
         self.context_list = np.array([])
     def update(self, vector, sense_id, word_list):
-        self.context_list = np.append(self.context_list,Context(vector,
-            sense_id, word_list))
+        if ';' in sense_id:
+            ids = sense_id.split(';')
+        else:
+            ids = [sense_id]
+        for sid in ids:
+            self.context_list = np.append(self.context_list,Context(vector,
+                sid, word_list))
 
     def dump(self,n=1):
         # sample some instance and print to screen
