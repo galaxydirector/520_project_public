@@ -1,2 +1,4 @@
 pickle/
 *.embedding
+dataset/
+*.txt
