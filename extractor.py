@@ -50,13 +50,14 @@ class ContextContainer:
         np.savetxt(filename,matrix,delimiter=',')
 
 class ContextExtractor:
-    def __init__(self, word_map, word2vec_model, pos2vec_model):
+    def __init__(self, word_map, word2vec_model, pos2vec_model, dir_name):
         self.word_map = word_map
         self.word2vec_model = word2vec_model
         self.pos2vec_model = pos2vec_model
 
         self.context_map = {}
         self.WORD_VECTOR_LEN = 100
+        self.dir = dir_name
 
     def go(self, index_file):
         tag_files = load_tag_fies(index_file)
@@ -137,6 +138,6 @@ class ContextExtractor:
 
     def dump2file(self):
         for w,c in self.context_map.items():
-            filename = './dataset/words/%s.txt' % w
+            filename = './dataset/%s/%s.txt' %(self.dir, w)
             print 'dumpping %s to %s' % (w,filename)
             c.dump2file(filename)
