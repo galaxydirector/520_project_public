@@ -13,10 +13,10 @@ X_test = {}
 Y_train = {}
 Y_test = {}
 
-path_Xtrain = "../../upsampled/X_train/"
-path_Xtest = "../../upsampled/X_test/"
-path_Ytrain = "../../upsampled/Y_train/"
-path_Ytest = "../../upsampled/Y_test/"
+path_Xtrain = "../../word_pos_large/X_train/"
+path_Xtest = "../../word_pos_large/X_test/"
+path_Ytrain = "../../word_pos_large/Y_train/"
+path_Ytest = "../../word_pos_large/Y_test/"
 
 all_words = os.listdir(path_Xtrain)
 
@@ -31,16 +31,16 @@ make_ = 'make.txt'
 	# Y_train[word] = np.loadtxt(path_Ytrain+word, delimiter = ",")
 	# X_test[word] = np.loadtxt(path_Xtest+word, delimiter = ",")
 	# Y_test[word] = np.loadtxt(path_Ytest+word, delimiter = ",")
-word = 'make.txt'
+word = 'have.txt'
 X_train= np.loadtxt(path_Xtrain+word, delimiter = ",")
 Y_train = np.loadtxt(path_Ytrain+word, delimiter = ",")
 X_test = np.loadtxt(path_Xtest+word, delimiter = ",")
 Y_test = np.loadtxt(path_Ytest+word, delimiter = ",")
 
 # print("shape",X_train.shape)
-X_train= X_train.reshape([X_train.shape[0],100,4])
+X_train= X_train.reshape([X_train.shape[0],200,4])
 X_train= np.transpose(X_train,[0,2,1])
-X_test = X_test.reshape([X_test.shape[0],100,4])
+X_test = X_test.reshape([X_test.shape[0],200,4])
 X_test= np.transpose(X_test,[0,2,1])
 # print(X_train.shape)
 # X_train= np.transpose(X_train,[0,2,1])
@@ -53,8 +53,10 @@ print("classes",output_classes)
 print (Y_train.shape)
 # Y_train = np.array([to_categorical(i, num_classes=output_classes) for i in Y_train])
 # Y_test = np.array([to_categorical(i, num_classes=output_classes) for i in Y_test])
-Y_train = to_categorical(Y_train, num_classes=output_classes+1)
-Y_test = to_categorical(Y_test, num_classes=output_classes+1)
+Y_train = Y_train-1
+Y_test = Y_test -1
+Y_train = to_categorical(Y_train, num_classes=output_classes)
+Y_test = to_categorical(Y_test, num_classes=output_classes)
 
 
 opt_methods = {
@@ -75,11 +77,11 @@ training_params = {
 
 model_params = {
 	"range": 4,
-	"input_depth": 100,
+	"input_depth": 200,
 	"layers": 2, # deep network setup
 	"num_filter": 8,
 	'dilation_depth': 2,
-	'output_classes': output_classes+1
+	'output_classes': output_classes
 }
 
 def prepare_callbacks(model_file_path, test_folder, test_name, use_adaptive_optimzer=True):
@@ -153,7 +155,7 @@ def run_training(x_data, y_data, x_test, y_test, model_params, model_file_path, 
 	model.fit(x=x_data,
 		y=y_data,
 		batch_size=50,
-		epochs = 50, 
+		epochs = 10, 
 		verbose = 1,
 		validation_data=(x_test,y_test))
 	duration = time.time() - start_time
