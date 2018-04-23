@@ -1,0 +1,69 @@
+\section{Problem Formulation}
+
+We formualte the word sense disambiguation task into a supervised multi-class
+classification problem.
+This problem can be represented as tuple $(X,Y,h)$, where $X$ is the instance
+space, that contains the description of the object on which we are to predict, 
+and $Y$ is the label space, from which each object draws a label,
+and $h$ is the classification function $X \rightarrow Y$, that maps the
+descriptoin of an object in instance space $X$ to label space $Y$.
+
+Each targetted ambiguous word $w$ has it's own label space $Y_w$, and a shared
+instance space $X$ with other ambiguous words.
+Therefore, the solution to a word sense disambiguation is specific to each
+individual ambiguous word.
+For each ambigous word we train a specific classifier $h_w: X
+\rightarrow Y_w$, that maps instance from $X$ to it's own label space $Y_w$.
+
+
+\subsection{Data Preprocessing}
+
+We use SemCor Corpus~\cite{semcor} to provide the raw data for human languages.
+SemCor Corpus is a corpus where each word is tagged with a sense provided by
+WordNet~\cite{wordnet}.
+We then generate the dataset for this problem, in the following steps:
+
+\begin{enumerate}
+  \item Tokenization: transform the sentense strings into list of tokens
+    (usually words).
+  \item Part-of-Speech tagging: e.g. ``the/DT bar/NN was/VBD crowded/JJ'', where
+    DT stands for Determiners, NN stands for Noun, etc.
+  \item Lemmatization: e.g. $plays \rightarrow play$, $was \rightarrow be$.
+  \item Feature extraction: select some features to represent the context.
+\end{enumerate}
+
+\Paragraph{Ambigous word}. 
+Given an English word $w$, and a tagged corpus, we say the $w$ is ambiguous, if
+it is tagged with at least two different WordNet Sense IDs in the corpus.
+
+(1) Ambiguity: Multiple sense id occurences.
+(2) Learnability: Enough overall occurences, and occurences for each sense ids.
+
+\Paragraph{Context Representation}
+We use Colocation~\cite{colocation} method to represent the context of a word.
+For a given ambiguous word, we looks at the the preceding and succeeding words,
+and their Part-of-Speech tags.
+The size of the moving window can vary, we use two in this project, as suggested
+by previous studies (CITE).
+\begin{equation}
+  [w_{i-2},POS_{i-2},w_{i-1},POS_{i-1},w_{i+1},POS_{i+1},w_{i+1},POS_{i+1}]
+\end{equation}
+
+Vector reprensetations.
+Word2Vec(CITE)
+
+\Paragraph{Construct training set for each target word}.
+Let W be the set of English words that we want to do sense disambiguation. For
+each $w \in W$, we need to extract a training set $X_w$ from the SemCor Corpus
+as follow: 
+\begin{enumerate}
+  \item Draw a set of sentences $S_w$ from SemCor Corpus, where each 
+$s \in S_w$ contains w. 
+  \item Convert each sentence $s \in S_w$ to a feature vector x, and the sense
+    label y. The set of all (x,y) pairs is our training set $X_w$.
+\end{enumerate}
+
+\subsection{Performance Measures}. 
+
+For each target word, we partition the data into training set and test set. 
+And evaluate classifiers on the training set using 0-1 loss.
