@@ -1,6 +1,7 @@
 \section{Experimental design and results}
 
 \subsection{Dataset Selection}
+\label{sec:results:data}
 
 There are morn than thousands of ambugious words in the SemCor corpuse, by our
 definition in secton~\ref{sec:formulate:preprocess}, which will translate to
@@ -13,9 +14,6 @@ Therefore, we use two criteria to select the set of training set we use in our
 experiment:
 (1) Overall instances greate than 200, 
 and (2) Each sense ids (labels / classes) appear at least 20 times.
-
-These critia filters out the eight words we use in evaluation
-(section~\ref{sec:eval:results}).
 
 \subsection{Parameters Tuning}
 
@@ -46,13 +44,23 @@ parameters.
 \Paragraph{Neural Network}.
 Because the limitation of dataset and purpose of in comparison with other modeling method, the model parameters used in the network for comparison are two dilation blocks with each only two layers to process four words. Only forward processing blocks exist, since the dataset is too small, which has been under-fitting. Number of filters of both causal convolution and dilation layers is 8. Number of filters of dense layer before the softmax layer is 16. Adam was used as the optimizer. The data is trained the whole dataset of a word per batch, and repeated five times for the same dataset. 
 
-\subsection{Results}
+\subsection{Results: Weighted F1 Scores}
 \label{sec:eval:results}
 
 We use \textbf{weighted} F1 scores to account for the class imbalance effect in
 the dataset. 
 That is, we first calculate F1 scores for each class, and then average them,
 weighted by the number of each class in the test set.
+
+Using the critia in section~\ref{sec:results:data} we filter out the eight words
+in evaluation result in figure~\ref{fig:results:f1}.
+But these dataset consist too few training instances for our neural network
+algorithm to converge.
+To evalute the neural network's performance, we loose the second critia (fewer
+instance on some minor classes) and include two larger dataset, and results in
+figure~\ref{fig:results:f1-large}.
+We handle the minor class issues (classes with only one or two labels), by
+manually upsampling the instances of such classes to 20.
 
 \begin{figure*}[t!]
     \centering
@@ -64,19 +72,26 @@ weighted by the number of each class in the test set.
   \begin{subfigure}[t]{0.3\textwidth}
     \includegraphics[width=\textwidth]{plots/f1_large.jpg}
     \caption{on larger dataset}
-    \label{fig:results:f1}
+    \label{fig:results:f1-large}
 \end{subfigure}
 \end{figure*}
 
-Figure~\ref{fig:results:f1} shows the F1 socres for each classifer,
-on each ambiguous word.
+\Paragraph{Logistic Regression and SVM works consistently well}
+Comparing the bars for Logistic Regression and SVMs, in
+figure~\ref{fig:results:f1} and figure~\ref{fig:results:f1-large},
+we notice they yields close F1 socres on both small and large dataset.
 
-\Paragraph{Naive Bayes good at balanced classes}.
-Naive Bayes shows high variance in terms of F1 score, compared to other
-discriminative classifiers, as shown in figure~\ref{fig:results:f1}.
-On word ``child'', Naive Bayes outperforms other discriminative classifiers by
-about 16\%.
-While on other words like ``result'', its F1 score is lowwer by about 28\%.
-The problem is class imbalanced. 
-On dataset of ``child'' has a class breakdown to (146,61), while words like
-``result'' has a breakdown to (127,63,24).
+Kernel method doesn't give significant improvement to SVM.
+Neither RBF Kernel SVM and Polynomial Kernel SVM shows better performance over
+linear SVM.
+
+\Paragraph{Neural Network dominates large dataset.}
+Even though the part of the dataset is synthesized, (upsampling to handle class
+imbalance), Neural Network outperforms the rest of the classifiers.
+
+\Paragraph{Naive Bayes only works at small-scale dataset}.
+A significant performance downgrade shown on large dataset
+(figure~\ref{fig:results:f1-large}).
+However, on small dataset, Naive Bayers is able to catch up with the other
+discriminative models.
+
