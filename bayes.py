@@ -19,14 +19,7 @@ def dump_score(filename, words, scores):
         for w,s in zip(words,scores):
             f.write('%s: %.4f\n' % (w,s))
 
-if __name__ == '__main__':
-    # data_dir = './dataset/word_pos'
-    # vocab = 'word_list.txt'
-    # length = 8
-    data_dir = './dataset/word_pos_large'
-    vocab = 'large.txt'
-    length = 2
-
+def train(vocab, data_dir,length):
     accuracies = np.zeros(length)
     f1scores = np.zeros(length)
 
@@ -46,14 +39,34 @@ if __name__ == '__main__':
             
             X_test_file = '%s/X_test/%s' % (data_dir,w)
             Y_test_file = '%s/Y_test/%s' % (data_dir,w)
-            X_test = load_data(X_train_file)
-            y_test = load_data(Y_train_file)
+            X_test = load_data(X_test_file)
+            y_test = load_data(Y_test_file)
+
+            assert X_test.shape[0] != X.shape[0]
+            assert y_test.shape[0] != y.shape[0]
 
             y_pred = classifier.predict(X_test)
             accuracies[i] = metrics.accuracy_score(y_test,y_pred)
             f1scores[i] = metrics.f1_score(y_test,y_pred,average='weighted')
 
             i += 1
+        return words, accuracies, f1scores
+
+if __name__ == '__main__':
+    data_dir = './dataset/word_pos'
+    vocab = 'word_list.txt'
+    length = 8
+
+    [words, accuracies, f1scores] = train(vocab, data_dir,length)
+
+    data_dir = './dataset/word_pos_large'
+    vocab = 'large.txt'
+    length = 2
+
+    [new_words, new_accuracies, new_f1scores] = train(vocab, data_dir,length)
+    accuracies = np.append(accuracies,new_accuracies)
+    f1scores = np.append(f1scores,new_f1scores)
+    words = np.append(words,new_words)
 
     dump_score('bayes_f1.log', words, f1scores)
     dump_score('bayes_accuracy.log', words, f1scores)
