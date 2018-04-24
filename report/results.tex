@@ -44,7 +44,7 @@ Eventually, for each target word, each type of SVM models has its own tuned best
 parameters.
 
 \Paragraph{Neural Network}.
-Because the limitation of dataset and purpose of in comparison with other modeling method, the model parameters used in the network for comparison are two dilation blocks with each only two layers to process four words. Only forward processing blocks exist, since the dataset is too small, which has been under-fitting. Number of filters of both causal convolution and dilation layers is 8. Number of filters of dense layer before the softmax layer is 16. The data is trained the whole dataset of a word per batch, and repeated five times for the same dataset.
+Because the limitation of dataset and purpose of in comparison with other modeling method, the model parameters used in the network for comparison are two dilation blocks with each only two layers to process four words. Only forward processing blocks exist, since the dataset is too small, which has been under-fitting. Number of filters of both causal convolution and dilation layers is 8. Number of filters of dense layer before the softmax layer is 16. Adam was used as the optimizer. The data is trained the whole dataset of a word per batch, and repeated five times for the same dataset. 
 
 \subsection{Results}
 \label{sec:eval:results}
