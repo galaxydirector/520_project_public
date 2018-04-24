@@ -17,6 +17,7 @@ For each ambigous word we train a specific classifier $h_w: X
 
 
 \subsection{Data Preprocessing}
+\label{sec:formulate:preprocess}
 
 We use SemCor Corpus~\cite{semcor} to provide the raw data for human languages.
 SemCor Corpus is a corpus where each word is tagged with a sense provided by
@@ -35,9 +36,6 @@ We then generate the dataset for this problem, in the following steps:
 \Paragraph{Ambigous word}. 
 Given an English word $w$, and a tagged corpus, we say the $w$ is ambiguous, if
 it is tagged with at least two different WordNet Sense IDs in the corpus.
-
-(1) Ambiguity: Multiple sense id occurences.
-(2) Learnability: Enough overall occurences, and occurences for each sense ids.
 
 \Paragraph{Context Representation}
 We use Colocation~\cite{colocation} method to represent the context of a word.
@@ -65,5 +63,4 @@ $s \in S_w$ contains w.
 
 \subsection{Performance Measures}. 
 
-For each target word, we partition the data into training set and test set. 
-And evaluate classifiers on the training set using 0-1 loss.
+We use F1 scores to account for the class imbalance effect in the dataset.
