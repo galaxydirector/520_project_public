@@ -15,4 +15,6 @@ test set, in 70/30 ratio. The split is stratified to account for class imbalance
 
 `logistic_regression.ipynb`: Logistic Regression
 
+`svm.ipynb`: Support Vector Machine
+
 `waveNet_keras/train.py `: Neural Network
