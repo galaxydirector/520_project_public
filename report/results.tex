@@ -54,12 +54,19 @@ the dataset.
 That is, we first calculate F1 scores for each class, and then average them,
 weighted by the number of each class in the test set.
 
-\begin{figure}[h]
-  \centering 
-  \includegraphics[width=0.7\textwidth]{plots/f1.jpg}
-    \caption{Weighted F1 scores on each words}
+\begin{figure*}[t!]
+    \centering
+  \begin{subfigure}[t]{0.68\textwidth}
+    \includegraphics[width=\textwidth]{plots/f1.jpg}
+    \caption{Weighted F1 scores on small-scale dataset}
     \label{fig:results:f1}
-\end{figure}
+\end{subfigure}
+  \begin{subfigure}[t]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{plots/f1_large.jpg}
+    \caption{on larger dataset}
+    \label{fig:results:f1}
+\end{subfigure}
+\end{figure*}
 
 Figure~\ref{fig:results:f1} shows the F1 socres for each classifer,
 on each ambiguous word.
