@@ -69,6 +69,6 @@ if __name__ == '__main__':
     words = np.append(words,new_words)
 
     dump_score('bayes_f1.log', words, f1scores)
-    dump_score('bayes_accuracy.log', words, f1scores)
-    np.savetxt('bayes_f1.txt', accuracies, delimiter=',')
+    dump_score('bayes_accuracy.log', words, accuracies)
+    np.savetxt('bayes_f1.txt', f1scores, delimiter=',')
     np.savetxt('bayes_accuracy.txt', accuracies, delimiter=',')
