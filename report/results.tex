@@ -3,7 +3,7 @@
 \subsection{Dataset Selection}
 \label{sec:results:data}
 
-There are morn than thousands of ambugious words in the SemCor corpuse, by our
+There are more than thousands of ambugious words in the SemCor corpuse, by our
 definition in secton~\ref{sec:formulate:preprocess}, which will translate to
 more than thousands of datasets and the corresponding machine learning tasks.
 However, not all dataset is qualified for a tractable machine learning problem. 
@@ -52,11 +52,11 @@ the dataset.
 That is, we first calculate F1 scores for each class, and then average them,
 weighted by the number of each class in the test set.
 
-Using the critia in section~\ref{sec:results:data} we filter out the eight words
+Using the criteria in section~\ref{sec:results:data} we filter out the eight words
 in evaluation result in figure~\ref{fig:results:f1}.
 But these dataset consist too few training instances for our neural network
 algorithm to converge.
-To evalute the neural network's performance, we loose the second critia (fewer
+To evalute the neural network's performance, we loose the second criterion (fewer
 instance on some minor classes) and include two larger dataset, and results in
 figure~\ref{fig:results:f1-large}.
 We handle the minor class issues (classes with only one or two labels), by
