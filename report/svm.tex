@@ -1,1 +1,10 @@
 \Paragraph{Support Vector Machine}
+\\We have built three types of SVM models for each target word: Linear SVM, RBF kernel SVM and Polynomial kernel SVM. For the purpose of multi-class classification task, we use the \texttt{svm.SVC()} method in \texttt{sklearn} module in Python. Specifically, we set the \texttt{kernel} attribute in \texttt{svm.SVC()} to be ``linear'', ``rbf'' and ``poly'' respectively for building the three types of SVM models.
+
+For each type of SVM models, we execute a 3-fold cross-validation on the training set for choosing the best parameters. The \texttt{grid\_search.GridSearchCV()} method in \texttt{sklearn} module in Python is used for this. We maintain the default stratified 3-fold splitting approach during cross-validation. The parameter to be tuned for Linear SVM is C, for RBF SVM is \{C, gamma\}, and for Polynomial SVM is \{C, degree\}. The range of values for each parameter is set as follows.
+
+C = [0.01, 0.1, 1, 10, 100] \\
+gamma = [0.0001, 0.001, 0.01, 0.1, 1, 10] \\
+degree = [2, 3, 4, 5]
+
+Eventually, for each target word, each type of SVM models has its own tuned best parameters.
